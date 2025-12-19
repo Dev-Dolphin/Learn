@@ -1,7 +1,8 @@
 import { connection } from "../mysqlConnection";
 
-const handleHomeController = (req, res) => {
-    return res.render('home.ejs');
+const handleHomeController = async (req, res) => {
+    const [rows, fields] = await connection.execute('SELECT * FROM user');
+    return res.render('home.ejs', { users: rows });
 }
 
 const handleUserPageController = (req, res) => {
@@ -17,11 +18,36 @@ const handleCreateUser = async (req, res) => {
             [username, email, password]
         );
         console.log('User created successfully');
-        return res.redirect('/users');
+        return res.status(201).json({ message: 'User created successfully' });
     } catch (err) {
         console.log(err);
         return res.status(500).json({ message: 'Error creating user' });
     }
 }
 
-export { handleHomeController, handleUserPageController, handleCreateUser };
+const handleDeleteUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await connection.execute('DELETE FROM user WHERE id = ?', [id]);
+        return res.status(200).json({ message: 'User deleted successfully' });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: 'Error deleting user' });
+    }
+}
+
+const handleUpdateUser = async (req, res) => {
+    try {
+        const { id, username, email } = req.body;
+        await connection.execute(
+            'UPDATE user SET username = ?, email = ? WHERE id = ?',
+            [username, email, id]
+        );
+        return res.status(200).json({ message: 'User updated successfully' });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: 'Error updating user' });
+    }
+}
+
+export { handleHomeController, handleUserPageController, handleCreateUser, handleDeleteUser, handleUpdateUser };

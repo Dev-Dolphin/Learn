@@ -6,10 +6,99 @@
 </head>
 
 <body>
-        <h1>Welcome to the Home Page</h1>
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">User List</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% users.forEach(user => { %>
+                            <tr id="user-row-<%= user.id %>">
+                                <td><%= user.id %></td>
+                                <td><span class="username"><%= user.username %></span></td>
+                                <td><span class="email"><%= user.email %></span></td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm" onclick="editUser(<%= user.id %>)">Edit</button>
+                                    <button class="btn btn-danger btn-sm" onclick="deleteUser(<%= user.id %>)">Delete</button>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        async function deleteUser(id) {
+            if (confirm('Are you sure you want to delete this user?')) {
+                await fetch(`/api/users/${id}`, {
+                    method: 'DELETE'
+                });
+                location.reload();
+            }
+        }
+
+        function editUser(id) {
+            const row = document.getElementById(`user-row-${id}`);
+            const usernameSpan = row.querySelector('.username');
+            const emailSpan = row.querySelector('.email');
+
+            const username = usernameSpan.innerText;
+            const email = emailSpan.innerText;
+
+            row.querySelector('td:nth-child(2)').innerHTML = `<input type="text" class="form-control" value="${username}">`;
+            row.querySelector('td:nth-child(3)').innerHTML = `<input type="email" class="form-control" value="${email}">`;
+
+            row.querySelector('td:nth-child(4)').innerHTML = `
+                <button class="btn btn-success btn-sm" onclick="saveUser(${id})">Save</button>
+                <button class="btn btn-secondary btn-sm" onclick="cancelEdit(${id}, '${username}', '${email}')">Cancel</button>
+            `;
+        }
+
+        async function saveUser(id) {
+            const row = document.getElementById(`user-row-${id}`);
+            const username = row.querySelector('input[type="text"]').value;
+            const email = row.querySelector('input[type="email"]').value;
+
+            await fetch('/api/update-user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id, username, email })
+            });
+
+            row.querySelector('td:nth-child(2)').innerHTML = `<span class="username">${username}</span>`;
+            row.querySelector('td:nth-child(3)').innerHTML = `<span class="email">${email}</span>`;
+            row.querySelector('td:nth-child(4)').innerHTML = `
+                <button class="btn btn-primary btn-sm" onclick="editUser(${id})">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteUser(${id})">Delete</button>
+            `;
+        }
+
+        function cancelEdit(id, username, email) {
+            const row = document.getElementById(`user-row-${id}`);
+            row.querySelector('td:nth-child(2)').innerHTML = `<span class="username">${username}</span>`;
+            row.querySelector('td:nth-child(3)').innerHTML = `<span class="email">${email}</span>`;
+            row.querySelector('td:nth-child(4)').innerHTML = `
+                <button class="btn btn-primary btn-sm" onclick="editUser(${id})">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteUser(${id})">Delete</button>
+            `;
+        }
+    </script>
 </body>
 
 </html>

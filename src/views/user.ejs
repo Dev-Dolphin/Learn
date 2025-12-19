@@ -50,14 +50,15 @@
                 body: JSON.stringify({ username, email, password })
             });
 
-            const result = response;
+            const result = await response.json();
 
-            alert(JSON.stringify(result));
-            if (result) {
+            if (response.ok) {
+                window.location.href = '/home';
+            } else {
                 const notificationArea = document.getElementById('notification-area');
                 notificationArea.innerHTML = `
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        User created successfully!
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        ${result.message}
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
