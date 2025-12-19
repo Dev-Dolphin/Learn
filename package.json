@@ -1,0 +1,25 @@
+{
+  "name": "be-node-jwt",
+  "version": "1.0.0",
+  "description": "BE-jwt",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo && exit 1",
+    "start": "nodemon --exec babel-node src/server.js"
+  },
+  "dependencies": {
+    "body-parser": "1.19.1",
+    "dotenv": "10.0.0",
+    "ejs": "3.1.6",
+    "express": "4.17.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.28.5",
+    "@babel/node": "^7.28.0",
+    "@babel/preset-env": "^7.28.5",
+    "nodemon": "^3.1.11"
+  }
+}
