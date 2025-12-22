@@ -1,8 +1,13 @@
 import { connection } from "../mysqlConnection";
 
 const handleHomeController = async (req, res) => {
-    const [rows, fields] = await connection.execute('SELECT * FROM user');
-    return res.render('home.ejs', { users: rows });
+    try {
+        const [rows, fields] = await connection.execute('SELECT username, email FROM user');
+        return res.status(201).json({ message: '', userLists: rows });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: 'Error creating user' });
+    }
 }
 
 const handleUserPageController = (req, res) => {
@@ -13,6 +18,23 @@ const handleUserPageController = (req, res) => {
 const handleCreateUser = async (req, res) => {
     try {
         const { username, email, password } = req.body;
+
+        const [existingUsers] = await connection.execute(
+            'SELECT * FROM user WHERE username = ? OR email = ?',
+            [username, email]
+        );
+
+        if (existingUsers.length > 0) {
+            for (const user of existingUsers) {
+                if (user.username === username) {
+                    return res.status(409).json({ message: 'Username already exists' });
+                }
+                if (user.email === email) {
+                    return res.status(409).json({ message: 'Email already exists' });
+                }
+            }
+        }
+
         await connection.execute(
             'INSERT INTO user (username, email, password) VALUES (?, ?, ?)',
             [username, email, password]
