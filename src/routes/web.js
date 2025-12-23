@@ -11,7 +11,7 @@ const initWebRoutes = (app) => {
     router.delete('/api/users/:id', verifyToken, handleDeleteUser);
     router.post('/api/update-user', verifyToken, handleUpdateUser);
     router.post('/api/login', handleLoginController);
-    router.post('/api/sign', handleRegisterController);
+    router.post('/api/signup', handleRegisterController);
 
     return app.use('/', router);
 }

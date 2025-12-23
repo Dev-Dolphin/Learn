@@ -53,8 +53,8 @@ const handleRegisterController = async (req, res) => {
 
         // 3. Check for existing user
         const [existingUsers] = await connection.execute(
-            'SELECT * FROM user WHERE username = ? OR email = ?',
-            [username, email]
+            'SELECT * FROM user WHERE username = ?',
+            [username]
         );
 
         if (existingUsers.length > 0) {
@@ -76,7 +76,7 @@ const handleRegisterController = async (req, res) => {
             [username, email, hashedPassword]
         );
         console.log('User created successfully');
-        return res.status(201).json({ message: 'User created successfully' });
+        return res.status(201).json({ message: 'User created successfully', data: { username, email } });
     } catch (err) {
         console.log(err);
         return res.status(500).json({ message: 'Error creating user' });
